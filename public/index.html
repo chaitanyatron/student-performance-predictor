@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Performance Predictor</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="container hero-inner">
+      <div>
+        <p class="eyebrow">Machine Learning Mini Project</p>
+        <h1>Predicting Student Academic Performance</h1>
+        <p class="lead">A Flask + scikit-learn Decision Tree that classifies students as <b>Low</b>, <b>Average</b> or <b>High</b> performers.</p>
+      </div>
+      <div id="status" class="status status-wait"><span class="dot"></span><span id="status-text">Checking backend…</span></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Project overview</h2>
+      <p>The Python backend loads <code>data/students.csv</code> with pandas, splits it into 80% training and 20% test data, trains a Decision Tree on the training part and measures accuracy on the unseen test part. This page only displays what the backend returns.</p>
+      <div class="stats">
+        <div class="stat"><span class="stat-value" id="stat-total">–</span><span class="stat-label">Student records</span></div>
+        <div class="stat"><span class="stat-value" id="stat-split">–</span><span class="stat-label">Train / test split</span></div>
+        <div class="stat"><span class="stat-value" id="stat-accuracy">–</span><span class="stat-label">Test accuracy</span></div>
+        <div class="stat"><span class="stat-value" id="stat-depth">–</span><span class="stat-label">Tree depth</span></div>
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <h2>Performance class distribution</h2>
+        <div id="distribution" class="bars"><p class="muted">Loading…</p></div>
+      </section>
+
+      <section class="card">
+        <h2>Confusion matrix <small>(held-out test set)</small></h2>
+        <div id="confusion" class="table-wrap"><p class="muted">Loading…</p></div>
+        <p class="muted small">Rows = actual class, columns = predicted class. Numbers on the diagonal are correct predictions.</p>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>Predict a new student</h2>
+      <div class="presets">
+        <span class="muted small">Fill the form with an example:</span>
+        <button type="button" class="chip" data-preset="low">Struggling student</button>
+        <button type="button" class="chip" data-preset="avg">Typical student</button>
+        <button type="button" class="chip" data-preset="high">Strong student</button>
+      </div>
+      <div class="grid-2 predict">
+        <form id="predict-form" novalidate>
+          <label>Attendance (%)
+            <input type="number" name="Attendance_Percentage" min="0" max="100" step="0.1" value="75" required>
+          </label>
+          <label>Study hours per day
+            <input type="number" name="Study_Hours_Per_Day" min="0" max="24" step="0.1" value="3" required>
+          </label>
+          <label>Previous marks (%)
+            <input type="number" name="Previous_Marks" min="0" max="100" step="0.1" value="60" required>
+          </label>
+          <label>Assignment completion (%)
+            <input type="number" name="Assignment_Completion_Percentage" min="0" max="100" step="0.1" value="70" required>
+          </label>
+          <label>Sleep hours per night
+            <input type="number" name="Sleep_Hours" min="0" max="24" step="0.1" value="7" required>
+          </label>
+          <label>Participation level
+            <select name="Participation_Level" required>
+              <option>Low</option>
+              <option selected>Medium</option>
+              <option>High</option>
+            </select>
+          </label>
+          <button type="submit" class="btn" id="predict-btn">Predict performance</button>
+        </form>
+
+        <div id="result" class="result" aria-live="polite">
+          <p class="muted">Fill in the form and press <b>Predict performance</b>. The request is sent to <code>POST /api/predict</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Student data preview <small>(first 10 rows of the CSV)</small></h2>
+      <div id="preview" class="table-wrap"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section class="card">
+      <h2>Feature importance</h2>
+      <p class="muted small">How much each input was used by the trained tree to split students.</p>
+      <div id="importance" class="bars"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section class="card about">
+      <h2>About the algorithm</h2>
+      <h3>Decision Tree</h3>
+      <p>A Decision Tree asks a series of yes/no questions such as “Is Previous_Marks ≤ 65?”. Each answer sends the student down a branch until a leaf gives the final class. At each step scikit-learn picks the question that best separates the classes (measured by Gini impurity).</p>
+      <h3>Methodology</h3>
+      <ol>
+        <li>Load and validate the CSV (500 synthetic students, 6 features, 3 classes) using pandas.</li>
+        <li>Convert Participation_Level (Low / Medium / High) into 1 / 2 / 3.</li>
+        <li>Split into 80% training and 20% test data (fixed random seed, stratified by class) <em>before</em> training, so the test data is never seen by the model.</li>
+        <li>Train a Decision Tree with <code>max_depth=4</code> to keep it small and explainable.</li>
+        <li>Predict the test students and compute accuracy and the confusion matrix from those predictions.</li>
+      </ol>
+      <h3>Limitations</h3>
+      <ul>
+        <li>The data is <b>synthetic</b> (randomly generated), so results show the method, not real student behaviour.</li>
+        <li>Only 500 records and 6 features; real performance depends on many more factors.</li>
+        <li>A single Decision Tree can be unstable — small data changes may produce a different tree.</li>
+        <li>Predictions are estimates and must not be used to make decisions about real students.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">Built with Python, Flask, pandas and scikit-learn · Hosted on Vercel</div>
+  </footer>
+
+  <script src="/script.js"></script>
+</body>
+</html>
